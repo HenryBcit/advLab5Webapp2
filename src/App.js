@@ -11,7 +11,8 @@ class App extends Component {
             myImg2:require("./imgs/2.png"),
             allusers:[],
             myId:null,
-            showDisplay:false
+            showDisplay:false,
+            stickers:[]
         }
         
         this.handleImage = this.handleImage.bind(this);
@@ -20,7 +21,7 @@ class App extends Component {
     
     componentDidMount(){
         
-        this.socket = mySocket("http://localhost:10000");
+        this.socket = mySocket("https://advdyn2.herokuapp.com");
         
         this.socket.on("userjoined", (data)=>{
             this.setState({
@@ -51,6 +52,26 @@ class App extends Component {
                     src:this.refs["u"+this.state.myId].src
                 })
             });
+            
+            this.refs.thedisplay.addEventListener("click", (ev)=>{
+                if(this.state.myId === null){
+                    //FAIL
+                    return false;
+                }
+                
+                this.socket.emit("sticker", {
+                    x:ev.pageX,
+                    y:ev.pageY,
+                    id:this.state.myId,
+                    src:this.refs["u"+this.state.myId].src
+                });
+            })
+        });
+        
+        this.socket.on("newsticker", (data)=>{
+            this.setState({
+                stickers:data
+            }) 
         });
         
         this.socket.on("newmove", (data)=>{
@@ -103,6 +124,13 @@ class App extends Component {
             )    
         });
         
+        var stickers = this.state.stickers.map((obj,i)=>{
+            var mstyle = {left:obj.x, top:obj.y}
+            return (
+                <img className="allImgs" style={mstyle} src={obj.src} key={i} height={50} />
+            )
+        })
+        
         var comp = null;
         
         if(this.state.showDisplay === false){
@@ -116,6 +144,7 @@ class App extends Component {
                 <div>
                     <div ref="thedisplay" id="display">
                         {allimgs}
+                        {stickers}
                     </div>
                     <div id="controls">
                         {this.state.myId}

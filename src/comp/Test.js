@@ -13,7 +13,7 @@ class Test extends Component {
     }
     
     componentDidMount(){
-        this.socket = mySocket("http://advdyn2.herokuapp.com");
+        this.socket = mySocket("https://advdyn2.herokuapp.com");
         
         this.socket.on("newq", (data)=>{
              this.setState({

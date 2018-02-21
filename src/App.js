@@ -12,6 +12,7 @@ class App extends Component {
             allusers:[],
             myId:null,
             showDisplay:false,
+            stickers:[]
         }
         
         this.handleImage = this.handleImage.bind(this);
@@ -20,7 +21,7 @@ class App extends Component {
     
     componentDidMount(){
         
-        this.socket = mySocket("https://advdyn2.herokuapp.com");
+        this.socket = mySocket("http://localhost:10000");
         
         this.socket.on("userjoined", (data)=>{
             this.setState({
@@ -51,9 +52,23 @@ class App extends Component {
                     src:this.refs["u"+this.state.myId].src
                 })
             });
+            
+            this.refs.thedisplay.addEventListener("click", (ev)=>{
+                this.socket.emit("stick", {
+                    x:ev.pageX,
+                    y:ev.pageY,
+                    src:this.refs["u"+this.state.myId].src
+                });
+            });
 
         });
 
+        this.socket.on("newsticker", (data)=>{
+            this.setState({
+                stickers:data
+            });
+        });
+        
         this.socket.on("newmove", (data)=>{
             //console.log(data);
             this.refs["u"+data.id].style.left = data.x+"px";
@@ -104,6 +119,13 @@ class App extends Component {
             )    
         });
         
+        var allstickers = this.state.stickers.map((obj, i)=>{
+            var mstyle = {left:obj.x, top:obj.y};
+            return (
+                <img style={mstyle} key={i} src={obj.src} height={50} className="allImgs" />
+            )
+        })
+        
         var comp = null;
         
         if(this.state.showDisplay === false){
@@ -117,6 +139,7 @@ class App extends Component {
                 <div>
                     <div ref="thedisplay" id="display">
                         {allimgs}
+                        {allstickers}
                     </div>
                     <div id="controls">
                         {this.state.myId}

@@ -21,7 +21,7 @@ class App extends Component {
     
     componentDidMount(){
         
-        this.socket = mySocket("http://localhost:10000");
+        this.socket = mySocket("https://advdyn2.herokuapp.com");
         
         this.socket.on("userjoined", (data)=>{
             this.setState({
